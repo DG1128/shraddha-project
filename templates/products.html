@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Products – {{ company.name }}{% endblock %}
+{% block content %}
+
+<section class="page-banner">
+  <div class="container">
+    <h1>{% if current_cat %}{{ current_cat.name }}{% else %}Our Products{% endif %}</h1>
+    <p>Home / Products{% if current_cat %} / {{ current_cat.name }}{% endif %}</p>
+  </div>
+</section>
+
+{% if not current_cat %}
+<!-- ===== ALL PRODUCTS PAGE ===== -->
+<section class="products-page-section">
+  <div class="container">
+    <div class="section-heading">
+      <h2>Our Product Range</h2>
+      <div class="heading-line"></div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="cat-tabs">
+      {% for cat in categories %}
+      <a href="{{ cat.url }}" class="cat-tab">{{ cat.name }}</a>
+      {% endfor %}
+    </div>
+
+    <!-- All Products Grid with Enquiry Now + View More buttons -->
+    <div class="product-grid">
+      {% for p in home_products %}
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <a href="/product/{{ p.id }}">
+            <img src="{{ p.img }}" alt="{{ p.name }}" loading="lazy"/>
+          </a>
+        </div>
+        <div class="product-card-body">
+          <h4><a href="/product/{{ p.id }}">{{ p.name }}</a></h4>
+          <div class="product-card-btns">
+            <button class="btn-enquiry-now" onclick="openEnquiryModal('{{ p.name }}','{{ p.img }}','{{ p.price }}')">Enquiry Now</button>
+            <a href="/product/{{ p.id }}" class="view-more-link">View More</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% else %}
+<!-- ===== CATEGORY DETAIL PAGE ===== -->
+<section class="products-page-section">
+  <div class="container cat-detail-inner">
+    <!-- Sidebar -->
+    <aside class="cat-sidebar">
+      <h3>Product Categories</h3>
+      <ul class="sidebar-cat-list">
+        {% for cat in categories %}
+        <li class="{% if cat.id == current_cat.id %}active{% endif %}">
+          <a href="{{ cat.url }}">{{ cat.name }}</a>
+          {% if cat.id == current_cat.id and cat.sub %}
+          <ul class="sidebar-sub-list">
+            {% for sub in cat.sub %}
+            <li><a href="{{ sub.url }}">{{ sub.name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </aside>
+
+    <!-- Main: products in this category -->
+    <div class="cat-main">
+      <h2>{{ current_cat.name }}</h2>
+      <p>We manufacture a premium range of <strong>{{ current_cat.name }}</strong> using high quality PVC material. Our products are acknowledged for their dimensional accuracy and application-specific designs.</p>
+
+      {% if cat_products %}
+      <div class="product-grid product-grid-cat">
+        {% for p in cat_products %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            <a href="/product/{{ p.id }}">
+              <img src="{{ p.img }}" alt="{{ p.name }}" loading="lazy"/>
+            </a>
+          </div>
+          <div class="product-card-body">
+            <h4><a href="/product/{{ p.id }}">{{ p.name }}</a></h4>
+            <div class="product-card-btns">
+              <button class="btn-enquiry-now" onclick="openEnquiryModal('{{ p.name }}','{{ p.img }}','{{ p.price }}')">Enquiry Now</button>
+              <a href="/product/{{ p.id }}" class="view-more-link">View More</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="cat-enquiry-box">
+        <p>Interested in <strong>{{ current_cat.name }}</strong>?</p>
+        <a href="{{ url_for('contact') }}" class="btn btn-primary">Send Enquiry</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ===== ENQUIRY MODAL (same as original popup) ===== -->
+<div class="modal-overlay" id="enquiryModal" style="display:none">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <div class="modal-left">
+      <div class="modal-product-title" id="modalProductTitle">Product Name</div>
+      <img id="modalProductImg" src="" alt="" style="width:100%;border-radius:6px;margin-top:10px;"/>
+      <p class="modal-price" id="modalProductPrice"></p>
+    </div>
+    <div class="modal-right">
+      <div class="modal-header-btn">Get a Quick Quote</div>
+      <form class="modal-form" id="modalForm">
+        <input type="hidden" name="product" id="modalProductInput"/>
+        <div class="modal-form-row">
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="text" name="quantity" placeholder="Quantity"/>
+          </div>
+          <div class="form-group">
+            <label>Measurement Units</label>
+            <input type="text" name="unit" placeholder="Container / Box / Piece"/>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <label>Mobile No. *</label>
+          <div class="phone-input-wrap">
+            <span class="country-code">🇮🇳 +91</span>
+            <input type="tel" name="phone" placeholder="Enter Mobile No." required style="border-radius:0 6px 6px 0;border-left:none;"/>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Your Name"/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top:16px">Send Enquiry</button>
+        <div class="form-success" id="modalSuccess" style="display:none">&#10003; Enquiry sent successfully!</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

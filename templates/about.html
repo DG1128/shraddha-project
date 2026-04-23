@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}About Us – {{ company.name }}, {{ company.city }}{% endblock %}
+
+{% block content %}
+<section class="page-banner">
+  <div class="container"><h1>About Us</h1><p>Home / About Us</p></div>
+</section>
+
+<section class="about-section">
+  <div class="container about-inner">
+    <div class="about-img-side">
+      <div class="about-logo-big">
+        <div class="logo-box logo-box-xl">NP</div>
+        <h2>{{ company.name }}</h2>
+        <p>{{ company.tagline }}</p>
+      </div>
+      <table class="about-table">
+        <tr><td>Established</td><td>{{ company.established }}</td></tr>
+        <tr><td>Nature</td><td>{{ company.nature }}</td></tr>
+        <tr><td>Employees</td><td>{{ company.employees }}</td></tr>
+        <tr><td>Turnover</td><td>{{ company.turnover }}</td></tr>
+        <tr><td>Market</td><td>{{ company.market }}</td></tr>
+        <tr><td>GST No.</td><td>{{ company.gst }}</td></tr>
+      </table>
+    </div>
+    <div class="about-content-side">
+      <h2 class="section-title">Who We Are</h2>
+      <p><strong>{{ company.name }}</strong> is over a two-decade old name in the domain of industrial products manufacturing that has been delighting individual and corporate clients with its impressive range of products.</p>
+      <p>Based in {{ company.city }} ({{ company.state }}), the company has become a dependable manufacturer and supplier of premium quality Dip Moulded Caps, PVC Dip Moulding Products, End Caps, Handle Grips, PVC Dip Moulding Bellows, PVC Shrouds, Plastic Ball Valve Grip, Plastic Flange Cover, and PVC Insulated Terminal.</p>
+      <p>Our production facility is backed up with advanced machinery and supported with talented manpower, which helps us ascertain that only the finest products are manufactured using high-quality materials.</p>
+      <p>Our products have a huge demand in the domain of Industrial Moulding, Automobile Industries, Electrical Industries, and Medical Industries for their build, premium feel, and reasonable pricing.</p>
+
+      <div class="about-highlights">
+        <div class="ah-item"><div class="ah-num">20+</div><div class="ah-label">Years Experience</div></div>
+        <div class="ah-item"><div class="ah-num">100+</div><div class="ah-label">Products</div></div>
+        <div class="ah-item"><div class="ah-num">4+</div><div class="ah-label">Industries Served</div></div>
+        <div class="ah-item"><div class="ah-num">Pan India</div><div class="ah-label">Market Coverage</div></div>
+      </div>
+
+      <h3>Application Areas</h3>
+      <ul class="about-list">
+        <li>Industrial Moulding</li>
+        <li>Automobile Industries</li>
+        <li>Electrical Industries</li>
+        <li>Medical Industries</li>
+      </ul>
+
+      <h3>Why Choose Us?</h3>
+      <ul class="about-list">
+        <li>High grade raw materials</li>
+        <li>Advanced manufacturing machinery</li>
+        <li>Abrasion resistance &amp; dimensional accuracy</li>
+        <li>Expert packaging for safe delivery</li>
+        <li>Competitive pricing</li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock %}

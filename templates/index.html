@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block title %}{{ company.name }} – PVC Dip Moulding Manufacturer, {{ company.city }}{% endblock %}
+
+{% block content %}
+
+<!-- ===== SLIDER SECTION ===== -->
+<section class="slider-section">
+  <div class="slider-wrap">
+    {% for b in banners %}
+    <div class="slide {% if loop.first %}active{% endif %}">
+      <div class="slide-bg slide-bg-{{ loop.index }}"></div>
+      <div class="slide-content container">
+        <div class="slide-text">
+          <span class="slide-badge">Quality Products</span>
+          <h2>{{ b.label }}</h2>
+          <p>Premium quality PVC dip moulding products manufactured with advanced technology and high-grade raw
+            materials.</p>
+          <div class="slide-btns">
+            <a href="/products/{{ b.cat }}" class="btn btn-primary">View Products</a>
+            <a href="{{ url_for('contact') }}" class="btn btn-outline">Get Quote</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <!-- Slider Controls -->
+    <button class="slide-prev" id="slidePrev">&#10094;</button>
+    <button class="slide-next" id="slideNext">&#10095;</button>
+    <div class="slide-dots" id="slideDots">
+      {% for b in banners %}
+      <span class="dot {% if loop.first %}active{% endif %}" data-idx="{{ loop.index0 }}"></span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== WELCOME SECTION (same as original layout) ===== -->
+<section class="welcome-section">
+  <div class="container welcome-inner">
+
+    <!-- Left: Company Info Box -->
+    <div class="company-info-box">
+      <div class="cib-header">
+        <div class="cib-logo">
+          <div class="logo-box logo-box-lg"> </div>
+        </div>
+        <div>
+          <h3>{{ company.name }}</h3>
+          <span class="cib-city">{{ company.city }}, {{ company.state }}</span>
+        </div>
+      </div>
+      <table class="cib-table">
+        <tr>
+          <td class="cib-label">Year of Establishment</td>
+          <td class="cib-value">{{ company.established }}</td>
+        </tr>
+        <tr>
+          <td class="cib-label">Nature of Business</td>
+          <td class="cib-value">{{ company.nature }}</td>
+        </tr>
+        <tr>
+          <td class="cib-label">Number of Employees</td>
+          <td class="cib-value">{{ company.employees }}</td>
+        </tr>
+        <tr>
+          <td class="cib-label">Annual Turnover</td>
+          <td class="cib-value">{{ company.turnover }}</td>
+        </tr>
+        <tr>
+          <td class="cib-label">Market Covered</td>
+          <td class="cib-value">{{ company.market }}</td>
+        </tr>
+        <tr>
+          <td class="cib-label">GST No.</td>
+          <td class="cib-value">{{ company.gst }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Right: Welcome Text -->
+    <div class="welcome-text">
+      <h2 class="section-title">Welcome to our Website</h2>
+      <p>
+        <strong>{{ company.name }}</strong> is over a two-decade old name in the domain of industrial products
+        manufacturing that has been delighting individual and corporate clients with its impressive range of products.
+        Based in {{ company.city }} ({{ company.state }}), the company has become a dependable manufacturer and supplier
+        of premium quality Dip Moulded Caps, PVC Dip Moulding Products, End Caps, Handle Grips, PVC Dip Moulding
+        Bellows, PVC Shrouds, Plastic Ball Valve Grip, Plastic Flange Cover, and PVC Insulated Terminal.
+      </p>
+      <p>
+        Our production facility is backed up with advanced machinery and supported with talented manpower, which helps
+        us ascertain that only the finest products are manufactured using high-quality materials. Our products have a
+        huge demand in the domain of Industrial Moulding, Automobile Industries, Electrical Industries, and Medical
+        Industries for their build, premium feel, and reasonable pricing.
+      </p>
+      <a href="{{ url_for('about') }}" class="btn btn-primary">Read more...</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== PRODUCT RANGE SECTION ===== -->
+<section class="product-range-section">
+  <div class="container">
+    <div class="section-heading">
+      <h2>Product Range</h2>
+      <div class="heading-line"></div>
+    </div>
+    <div class="product-grid">
+      {% for p in home_products %}
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <img src="{{ p.img }}" alt="{{ p.name }}" loading="lazy" />
+        </div>
+        <div class="product-card-body">
+          <h4><a href="{{ p.url }}">{{ p.name }}</a></h4>
+          <a href="{{ p.url }}" class="view-more-link">View More</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="view-all-wrap">
+      <a href="{{ url_for('products') }}" class="btn btn-primary">View All Products</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY US / INFO SECTION ===== -->
+<section class="info-section">
+  <div class="container info-grid">
+
+    <div class="info-card">
+      <div class="info-icon">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="32" fill="var(--primary)" />
+          <path d="M20 44L32 20L44 44M26 36h12" stroke="white" stroke-width="3" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h3>Application Areas</h3>
+      <p>We manufacture a wide range of PVC Compounds and Granules used in Industrial Moulding, Automobile Industries,
+        Electrical Industries, Medical Industries and more.</p>
+    </div>
+
+    <div class="info-card">
+      <div class="info-icon">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="32" fill="var(--primary)" />
+          <path d="M32 18l3.6 7.4 8.1 1.2-5.9 5.7 1.4 8.1L32 36.4l-7.2 4L26.2 32l-5.9-5.7 8.1-1.2z" stroke="white"
+            stroke-width="2.5" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h3>Quality</h3>
+      <p>Quality begins long before production. We ensure the highest grade raw materials go into the making of every
+        product. Our products meet international quality standards.</p>
+    </div>
+
+    <div class="info-card">
+      <div class="info-icon">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="32" fill="var(--primary)" />
+          <path d="M22 42V28M32 42V22M42 42V32" stroke="white" stroke-width="3" stroke-linecap="round" />
+        </svg>
+      </div>
+      <h3>Why Us?</h3>
+      <p>Our products are widely known for abrasion resistance, sturdy construction and dimensional accuracy.
+        Qualitatively packed by our experts for safe delivery every time.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== QUICK ENQUIRY SECTION ===== -->
+<section class="enquiry-section">
+  <div class="container enquiry-inner">
+
+    <!-- Left: Form -->
+    <div class="enquiry-form-wrap">
+      <h2 class="section-title">Quick Enquiry</h2>
+      <form class="enquiry-form" id="enquiryForm">
+        <div class="form-group">
+          <input type="text" name="name" placeholder="Your Name *" required />
+        </div>
+        <div class="form-group">
+          <input type="tel" name="phone" placeholder="Phone Number *" required />
+        </div>
+        <div class="form-group">
+          <input type="email" name="email" placeholder="Email Address" />
+        </div>
+        <div class="form-group">
+          <select name="product">
+            <option value="">Select Product</option>
+            {% for cat in categories %}
+            <option value="{{ cat.name }}">{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <textarea name="message" rows="4" placeholder="Your Message / Requirements"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Send Enquiry</button>
+        <div class="form-success" id="formSuccess" style="display:none">
+          &#10003; Thank you! Your enquiry has been sent successfully.
+        </div>
+      </form>
+    </div>
+
+    <!-- Right: Find Us -->
+    <div class="find-us-wrap">
+      <h2 class="section-title">Find Us</h2>
+      <div class="find-us-box">
+        <h3>{{ company.name }}</h3>
+        <p class="fu-person">{{ company.contact_person }}</p>
+        <p class="fu-addr">{{ company.address }}</p>
+        <p class="fu-phone">
+          <a href="tel:{{ company.phone1 }}">{{ company.phone1 }}</a>,
+          <a href="tel:{{ company.phone2 }}">{{ company.phone2 }}</a>
+        </p>
+        <p class="fu-email">
+          <a href="mailto:{{ company.email }}">{{ company.email }}</a>
+        </p>
+        <div class="fu-map">
+          <iframe src="https://maps.google.com/maps?q=23.0170077,72.6568895&z=17&output=embed" width="100%" height="200"
+            style="border:0; border-radius:8px;" loading="lazy" allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

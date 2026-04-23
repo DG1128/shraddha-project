@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Testimonials – {{ company.name }}{% endblock %}
+{% block content %}
+<section class="page-banner">
+  <div class="container"><h1>Testimonials</h1><p>Home / Testimonials</p></div>
+</section>
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-heading">
+      <h2>What Our Clients Say</h2>
+      <div class="heading-line"></div>
+    </div>
+    <div class="testimonials-grid">
+      {% for t in testimonials %}
+      <div class="testi-card">
+        <div class="testi-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="testi-msg">"{{ t.msg }}"</p>
+        <div class="testi-author">
+          <div class="testi-avatar">{{ t.name[0] }}</div>
+          <div>
+            <strong>{{ t.name }}</strong>
+            <span>{{ t.company }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

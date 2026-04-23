@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} – {{ company.name }}{% endblock %}
+{% block content %}
+
+<!-- Breadcrumb Banner -->
+<section class="page-banner page-banner-sm">
+  <div class="container">
+    <p class="breadcrumb-trail">
+      <a href="{{ url_for('home') }}">Home</a> &gt;
+      <a href="/products/{{ product.cat_id }}">{{ product.cat_name }}</a> &gt;
+      {{ product.name }}
+    </p>
+  </div>
+</section>
+
+<!-- ===== PRODUCT DETAIL ===== -->
+<section class="product-detail-section">
+  <div class="container">
+    <div class="pd-layout">
+
+      <!-- Left: Product Image -->
+      <div class="pd-image-side">
+        <div class="pd-img-wrap">
+          <img src="{{ product.img }}" alt="{{ product.name }}" id="pdMainImg"/>
+          <div class="pd-zoom-hint">&#128269; Hover to zoom</div>
+        </div>
+      </div>
+
+      <!-- Right: Product Info -->
+      <div class="pd-info-side">
+        <div class="pd-share-row">
+          <h1 class="pd-title">{{ product.name }}</h1>
+          <button class="pd-share-btn" title="Share">&#128279;</button>
+        </div>
+
+        <div class="pd-price">&#8377; {{ product.price.replace('₹ ','') }}</div>
+
+        <div class="pd-quick-form">
+          <div class="pd-qf-row">
+            <input type="text" id="qfQty" placeholder="Quantity" />
+            <input type="text" id="qfUnit" placeholder="Container / Piece" />
+          </div>
+          <div class="pd-qf-actions">
+            <button class="btn btn-primary" onclick="openEnquiryModal('{{ product.name }}','{{ product.img }}','{{ product.price }}')">Get Best Price</button>
+          </div>
+        </div>
+
+        <table class="pd-spec-table">
+          <tr><td>Business Type</td><td>{{ product.business_type }}</td></tr>
+          <tr><td>Type</td><td>{{ product.type }}</td></tr>
+          <tr><td>Material</td><td>{{ product.material }}</td></tr>
+          <tr><td>Shape</td><td>{{ product.shape }}</td></tr>
+          <tr><td>Color</td><td>{{ product.color }}</td></tr>
+        </table>
+
+        <div class="pd-action-btns">
+          <a href="tel:{{ company.phone1 }}" class="btn btn-call">&#128222; Request to Call</a>
+          <button class="btn btn-primary" onclick="openEnquiryModal('{{ product.name }}','{{ product.img }}','{{ product.price }}')">&#9993; Send Enquiry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRODUCT DETAILS TABLE ===== -->
+<section class="pd-details-section">
+  <div class="container">
+    <div class="pd-details-box">
+      <h2>Product Details</h2>
+      <div class="pd-details-grid">
+        <div class="pd-detail-item">
+          <span class="pd-detail-label">Color</span>
+          <span class="pd-detail-value">{{ product.color }}</span>
+        </div>
+        <div class="pd-detail-item">
+          <span class="pd-detail-label">Feature</span>
+          <span class="pd-detail-value">{{ product.feature }}</span>
+        </div>
+        <div class="pd-detail-item">
+          <span class="pd-detail-label">Head Code</span>
+          <span class="pd-detail-value">{{ product.head_code }}</span>
+        </div>
+        <div class="pd-detail-item">
+          <span class="pd-detail-label">Packaging Type</span>
+          <span class="pd-detail-value">{{ product.packaging }}</span>
+        </div>
+      </div>
+      <div class="pd-desc">
+        <p>{{ product.desc }}</p>
+      </div>
+      <div style="text-align:center;margin-top:20px">
+        <button class="btn btn-primary btn-lg" onclick="openEnquiryModal('{{ product.name }}','{{ product.img }}','{{ product.price }}')">Yes! I am interested</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LOOKING FOR PRODUCT ENQUIRY FORM (like original) ===== -->
+<section class="pd-enquiry-section">
+  <div class="container">
+    <div class="pd-enquiry-box">
+      <h2>Looking for "<span class="product-name-highlight">{{ product.name }}</span>" ?</h2>
+      <form class="pd-enquiry-form" id="pdEnquiryForm">
+        <input type="hidden" name="product" value="{{ product.name }}"/>
+        <div class="pd-eq-grid">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="Name"/>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Email"/>
+          </div>
+          <div class="form-group">
+            <label>Mobile No.</label>
+            <div class="phone-input-wrap">
+              <span class="country-code">🇮🇳 +91</span>
+              <input type="tel" name="phone" placeholder="Enter Mobile No." style="border-radius:0 6px 6px 0;border-left:none;" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Quantity</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" name="quantity" placeholder="Estimated Quantity"/>
+              <input type="text" name="unit" placeholder="Container"/>
+            </div>
+          </div>
+          <div class="form-group form-group-full">
+            <label>Purpose of Requirement</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="purpose" value="Reselling"/> Reselling</label>
+              <label class="radio-label"><input type="radio" name="purpose" value="End Use"/> End Use</label>
+            </div>
+          </div>
+          <div class="form-group form-group-full">
+            <label>Requirement Details</label>
+            <textarea name="details" rows="3" placeholder="I am interested. Kindly send the quotation for the same."></textarea>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:16px">
+          <button type="submit" class="btn btn-primary btn-lg">Send Enquiry</button>
+        </div>
+        <div class="form-success" id="pdEnqSuccess" style="display:none;margin-top:14px;text-align:center">
+          &#10003; Your enquiry has been sent! We will contact you soon.
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXPLORE MORE PRODUCTS (slider like original) ===== -->
+<section class="explore-more-section">
+  <div class="container">
+    <div class="section-heading">
+      <h2>Explore More Products</h2>
+      <div class="heading-line"></div>
+    </div>
+    <div class="explore-slider-wrap">
+      <button class="explore-prev" id="explorePrev">&#10094;</button>
+      <div class="explore-track" id="exploreTrack">
+        {% for rp in related %}
+        <div class="explore-card">
+          <div class="explore-img-wrap">
+            <a href="/product/{{ rp.id }}">
+              <img src="{{ rp.img }}" alt="{{ rp.name }}" loading="lazy"/>
+            </a>
+          </div>
+          <h4><a href="/product/{{ rp.id }}" class="explore-name">{{ rp.name }}</a></h4>
+          <button class="btn btn-primary btn-sm explore-quote-btn"
+                  onclick="openEnquiryModal('{{ rp.name }}','{{ rp.img }}','{{ rp.price }}')">
+            Get Best Quote
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="explore-next" id="exploreNext">&#10095;</button>
+    </div>
+    <!-- Dots -->
+    <div class="explore-dots" id="exploreDots">
+      {% for rp in related %}
+      <span class="edot {% if loop.first %}active{% endif %}" data-idx="{{ loop.index0 }}"></span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== ENQUIRY MODAL ===== -->
+<div class="modal-overlay" id="enquiryModal" style="display:none">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <div class="modal-left">
+      <div class="modal-product-title" id="modalProductTitle"></div>
+      <img id="modalProductImg" src="" alt="" style="width:100%;border-radius:6px;margin-top:10px;max-height:200px;object-fit:cover;"/>
+      <p class="modal-price" id="modalProductPrice"></p>
+    </div>
+    <div class="modal-right">
+      <div class="modal-header-btn">Get a Quick Quote</div>
+      <form class="modal-form" id="modalForm">
+        <input type="hidden" name="product" id="modalProductInput"/>
+        <div class="modal-form-row">
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="text" name="quantity" placeholder="Quantity"/>
+          </div>
+          <div class="form-group">
+            <label>Measurement Units</label>
+            <input type="text" name="unit" placeholder="Container / Box / Piece"/>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <label>Mobile No. *</label>
+          <div class="phone-input-wrap">
+            <span class="country-code">🇮🇳 +91</span>
+            <input type="tel" name="phone" placeholder="Enter Mobile No." required style="border-radius:0 6px 6px 0;border-left:none;"/>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Your Name"/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top:16px">Send Enquiry</button>
+        <div class="form-success" id="modalSuccess" style="display:none">&#10003; Enquiry sent successfully!</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

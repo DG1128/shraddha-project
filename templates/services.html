@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Plastisol Coating Service – {{ company.name }}{% endblock %}
+{% block content %}
+<section class="page-banner">
+  <div class="container"><h1>Plastisol Coating Service</h1><p>Home / Plastisol Coating Service</p></div>
+</section>
+<section class="services-section">
+  <div class="container services-inner">
+    <div class="services-text">
+      <h2 class="section-title">PVC Plastisol Coating Service</h2>
+      <p>We provide professional PVC plastisol coating and dip moulding services for industrial components. Plastisol is a liquid PVC compound that, when heated, forms a tough, flexible protective coating ideal for a wide range of applications.</p>
+      <h3>Our Service Includes:</h3>
+      <ul class="services-list">
+        <li>Custom plastisol formulation for specific applications</li>
+        <li>Dip coating for tool handles, wire baskets &amp; fixtures</li>
+        <li>Electrical insulation coating for busbars &amp; terminals</li>
+        <li>Protective coatings for automotive components</li>
+        <li>Volume production with fast turnaround</li>
+        <li>Strict quality inspection before dispatch</li>
+      </ul>
+      <h3>Process:</h3>
+      <div class="process-steps">
+        <div class="ps-item"><span class="ps-num">1</span><p>Mould Preparation</p></div>
+        <div class="ps-arrow">&#8594;</div>
+        <div class="ps-item"><span class="ps-num">2</span><p>Preheating</p></div>
+        <div class="ps-arrow">&#8594;</div>
+        <div class="ps-item"><span class="ps-num">3</span><p>Dip Coating</p></div>
+        <div class="ps-arrow">&#8594;</div>
+        <div class="ps-item"><span class="ps-num">4</span><p>Oven Curing</p></div>
+        <div class="ps-arrow">&#8594;</div>
+        <div class="ps-item"><span class="ps-num">5</span><p>Quality Check</p></div>
+      </div>
+      <a href="{{ url_for('contact') }}" class="btn btn-primary">Request Service Quote</a>
+    </div>
+    <div class="services-aside">
+      <div class="services-enquiry-box">
+        <h3>Quick Enquiry</h3>
+        <form id="serviceForm">
+          <input type="text" name="name" placeholder="Your Name *" required/>
+          <input type="tel" name="phone" placeholder="Phone *" required/>
+          <input type="email" name="email" placeholder="Email"/>
+          <textarea name="message" rows="4" placeholder="Describe your coating requirement"></textarea>
+          <button type="submit" class="btn btn-primary btn-full">Send</button>
+          <div class="form-success" id="svcSuccess" style="display:none">&#10003; Enquiry sent!</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
