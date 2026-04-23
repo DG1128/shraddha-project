@@ -346,11 +346,14 @@ TESTIMONIALS = [
 ]
 
 # ── SEED DATABASE IF EMPTY ─────────────────────────────────────
-if products_col.count_documents({}) == 0:
-    print("Database empty. Seeding initial products...")
-    for p in ALL_PRODUCTS:
-        p["_id"] = ObjectId()
-    products_col.insert_many(ALL_PRODUCTS)
+try:
+    if products_col.count_documents({}) == 0:
+        print("Database empty. Seeding initial products...")
+        for p in ALL_PRODUCTS:
+            p["_id"] = ObjectId()
+        products_col.insert_many(ALL_PRODUCTS)
+except Exception as e:
+    print(f"Warning: Could not connect to MongoDB at startup. Ensure MONGO_URI is set. Error: {e}")
 
 # ── CONTEXT PROCESSOR ─────────────────────────────────────────
 @app.context_processor
