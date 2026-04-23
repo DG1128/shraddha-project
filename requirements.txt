@@ -1,2 +1,6 @@
 flask>=3.0.0
-pymongo>=4.0.0
+pymongo[srv]>=4.0.0
+requests>=2.31.0
+resend
+gunicorn
+python-dotenv

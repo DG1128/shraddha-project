@@ -9,12 +9,45 @@ from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime
 from functools import wraps
+import threading
+import os
+from dotenv import load_dotenv
+import resend
+
+# Load environment variables from .env file if present
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "nova-polymers-2025"
+app.secret_key = os.environ.get("SECRET_KEY", "nova-polymers-2025")
+
+# ── EMAIL CONFIGURATION ────────────────────────────────────────
+resend.api_key = os.environ.get("RESEND_API_KEY", "re_WsYvKYX3_JPFV3aZzPr5xqtHkLRmTZKsr")
+RECIPIENT_EMAIL = os.environ.get("RECIPIENT_EMAIL", "fakelaptop150@gmail.com")
+
+def send_enquiry_email(data):
+    """Sends email notification using Resend API. Safe and non-blocking."""
+    try:
+        body = f"""<p>New Enquiry Received:</p>
+        <p><strong>Name:</strong> {data.get('name')}</p>
+        <p><strong>Phone:</strong> {data.get('phone')}</p>
+        <p><strong>Email:</strong> {data.get('email', 'N/A')}</p>
+        <p><strong>Company:</strong> {data.get('company', 'N/A')}</p>
+        <p><strong>Product:</strong> {data.get('product', 'N/A')}</p>
+        <p><strong>Message:</strong><br>{data.get('message')}</p>"""
+        
+        response = resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": RECIPIENT_EMAIL,
+            "subject": f"New Enquiry from {data.get('name')} - Shraddha Products",
+            "html": body
+        })
+        print(f"Enquiry email sent via Resend API: {response}")
+    except Exception as e:
+        print(f"Failed to send email via Resend SDK: {e}")
 
 # ── MONGODB SETUP ──────────────────────────────────────────────
-client = MongoClient('mongodb://127.0.0.1:27017/')
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017/")
+client = MongoClient(MONGO_URI)
 db = client['shraddha_products']
 enquiries_col = db['enquiries']
 products_col = db['products']
@@ -417,6 +450,10 @@ def api_enquiry():
     }
     
     enquiries_col.insert_one(enquiry)
+    
+    # Send email notification in the background
+    threading.Thread(target=send_enquiry_email, args=(enquiry,)).start()
+    
     return jsonify({"status": "success", "msg": "Enquiry received! We will contact you soon."})
 
 
@@ -435,7 +472,11 @@ def admin_login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        if username == "admin" and password == "admin":
+        
+        admin_user = os.environ.get("ADMIN_USER", "admin")
+        admin_pass = os.environ.get("ADMIN_PASS", "admin123")
+        
+        if username == admin_user and password == admin_pass:
             session['admin_logged_in'] = True
             return redirect(url_for("admin_dashboard"))
         else:
@@ -448,13 +489,17 @@ def admin_logout():
     return redirect(url_for("admin_login"))
 
 @app.route("/admin")
+def admin_redirect():
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/admin/dashboard")
 @admin_required
 def admin_dashboard():
     # Sort latest first
     enquiries = list(enquiries_col.find().sort("createdAt", -1))
     return render_template("admin_dashboard.html", enquiries=enquiries)
 
-@app.route("/admin/enquiry/delete/<obj_id>", methods=["POST"])
+@app.route("/admin/enquiry/delete/<obj_id>", methods=["GET", "POST"])
 @admin_required
 def admin_delete_enquiry(obj_id):
     enquiries_col.delete_one({"_id": ObjectId(obj_id)})
@@ -517,7 +562,7 @@ def admin_product_edit(obj_id):
         return redirect(url_for("admin_products"))
     return render_template("admin_product_form.html", product=product, categories=CATEGORIES, action="Edit")
 
-@app.route("/admin/product/delete/<obj_id>", methods=["POST"])
+@app.route("/admin/product/delete/<obj_id>", methods=["GET", "POST"])
 @admin_required
 def admin_product_delete(obj_id):
     products_col.delete_one({"_id": ObjectId(obj_id)})

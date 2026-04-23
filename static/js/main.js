@@ -49,6 +49,42 @@
     });
   }
 
+  /* ── Mega Menu Desktop Hover Stability (JS Fallback) ─────── */
+  const dropItemHover = document.querySelector('.has-dropdown');
+  const megaMenuPanel = document.querySelector('.mega-drop');
+  let megaTimer;
+
+  if (dropItemHover && megaMenuPanel) {
+    dropItemHover.addEventListener('mouseenter', function() {
+      if (window.innerWidth > 768) {
+        clearTimeout(megaTimer);
+        megaMenuPanel.classList.add('force-open');
+      }
+    });
+    
+    dropItemHover.addEventListener('mouseleave', function() {
+      if (window.innerWidth > 768) {
+        megaTimer = setTimeout(function() {
+          megaMenuPanel.classList.remove('force-open');
+        }, 200);
+      }
+    });
+    
+    megaMenuPanel.addEventListener('mouseenter', function() {
+      if (window.innerWidth > 768) {
+        clearTimeout(megaTimer);
+      }
+    });
+    
+    megaMenuPanel.addEventListener('mouseleave', function() {
+      if (window.innerWidth > 768) {
+        megaTimer = setTimeout(function() {
+          megaMenuPanel.classList.remove('force-open');
+        }, 200);
+      }
+    });
+  }
+
   /* ── Hero Slider ──────────────────────────────────────────── */
   const slides  = document.querySelectorAll('.slide');
   const dots    = document.querySelectorAll('.dot');

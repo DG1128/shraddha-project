@@ -2,70 +2,169 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - Enquiries</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enquiries | Shraddha Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <nav class="bg-blue-600 p-4 text-white flex justify-between">
-        <div class="font-bold text-xl">Admin Panel</div>
-        <div>
-            <a href="/admin" class="mr-4 font-semibold underline">Enquiries</a>
-            <a href="/admin/products" class="mr-4 hover:underline">Products</a>
-            <a href="/admin/logout" class="hover:underline">Logout</a>
+<body class="bg-[#F4F7FC] text-slate-800 antialiased h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#0F172A] flex-shrink-0 hidden md:flex flex-col relative overflow-hidden">
+        <!-- Subtle background glow -->
+        <div class="absolute top-0 left-0 w-full h-48 bg-blue-600/20 rounded-full blur-3xl -translate-y-1/2"></div>
+        
+        <div class="h-20 flex items-center px-8 relative z-10 border-b border-white/5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 shadow-lg shadow-blue-500/30">
+                <span class="text-white font-bold text-xl">S</span>
+            </div>
+            <span class="text-white font-bold text-xl tracking-tight">Shraddha</span>
         </div>
-    </nav>
-    <div class="container mx-auto mt-8 p-4 bg-white rounded shadow">
-        <h2 class="text-2xl font-bold mb-4">Enquiries</h2>
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border text-left text-sm">
-                <thead class="bg-gray-800 text-white">
-                    <tr>
-                        <th class="py-2 px-4 border font-medium">Date</th>
-                        <th class="py-2 px-4 border font-medium">Details</th>
-                        <th class="py-2 px-4 border font-medium">Contact</th>
-                        <th class="py-2 px-4 border font-medium">Product</th>
-                        <th class="py-2 px-4 border font-medium">Message</th>
-                        <th class="py-2 px-4 border font-medium">Status</th>
-                        <th class="py-2 px-4 border font-medium text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for eq in enquiries %}
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="py-2 px-4 whitespace-nowrap">{{ eq.createdAt.strftime('%Y-%m-%d %H:%M') if eq.createdAt else 'N/A' }}</td>
-                        <td class="py-2 px-4">
-                            <strong>{{ eq.name }}</strong><br>
-                            <span class="text-xs text-gray-500">{{ eq.company }}</span>
-                        </td>
-                        <td class="py-2 px-4">
-                            {{ eq.phone }}<br>
-                            <span class="text-xs text-gray-500">{{ eq.email }}</span>
-                        </td>
-                        <td class="py-2 px-4">{{ eq.product }}</td>
-                        <td class="py-2 px-4 max-w-xs truncate" title="{{ eq.message }}">{{ eq.message }}</td>
-                        <td class="py-2 px-4">
-                            <span class="px-2 py-1 rounded-full text-xs font-semibold {{ 'bg-green-100 text-green-800' if eq.status == 'contacted' else 'bg-yellow-100 text-yellow-800' }}">
-                                {{ eq.status|capitalize }}
-                            </span>
-                        </td>
-                        <td class="py-2 px-4 flex gap-2 justify-center items-center">
-                            {% if eq.status != 'contacted' %}
-                            <form action="/admin/enquiry/status/{{ eq._id }}" method="POST" class="inline">
-                                <input type="hidden" name="status" value="contacted">
-                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs">Contacted</button>
-                            </form>
-                            {% endif %}
-                            <form action="/admin/enquiry/delete/{{ eq._id }}" method="POST" class="inline" onsubmit="return confirm('Delete this enquiry?');">
-                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr><td colspan="7" class="py-6 text-center text-gray-500">No enquiries found.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+        <nav class="flex-1 px-4 py-8 space-y-2 relative z-10">
+            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4 px-4">Menu</div>
+            <a href="/admin/dashboard" class="flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl font-bold border border-blue-500/20 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Enquiries
+            </a>
+            <a href="/admin/products" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl font-semibold transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                Products
+            </a>
+        </nav>
+
+        <div class="p-6 relative z-10">
+            <a href="/admin/logout" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl font-semibold transition-all group">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Logout
+            </a>
         </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        
+        <!-- Header -->
+        <header class="h-20 glass-header border-b border-slate-200/60 flex items-center justify-between px-8 flex-shrink-0 z-20">
+            <div class="md:hidden flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">S</span>
+                </div>
+                <span class="text-slate-900 font-bold text-lg">Shraddha</span>
+            </div>
+            <div class="hidden md:flex items-center">
+                <h2 class="text-xl font-extrabold text-slate-800 tracking-tight">Overview</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/" target="_blank" class="hidden md:flex text-sm font-semibold text-blue-600 hover:text-blue-700 mr-4">View Website &rarr;</a>
+                <div class="hidden md:flex flex-col items-end mr-2">
+                    <span class="text-sm font-extrabold text-slate-800">Admin</span>
+                    <span class="text-xs font-semibold text-slate-500">Shraddha Products</span>
+                </div>
+                <div class="h-10 w-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-bold flex items-center justify-center shadow-md shadow-blue-500/20 border-2 border-white ring-2 ring-slate-100">
+                    A
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 z-10 w-full relative">
+            <div class="max-w-7xl mx-auto space-y-6">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                    <div>
+                        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Enquiries Dashboard</h1>
+                        <p class="text-sm text-slate-500 font-medium mt-1">Manage leads and messages from your website.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/70 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-slate-50/80 border-b border-slate-100">
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50/50">Date</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50/50">Client Details</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50/50">Product</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50/50">Message</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50/50">Status</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50/50 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                {% for eq in enquiries %}
+                                <tr class="hover:bg-blue-50/40 transition-colors group">
+                                    <td class="px-6 py-5 align-top">
+                                        <div class="text-sm font-bold text-slate-700">{{ eq.createdAt.strftime('%b %d') if eq.createdAt else 'N/A' }}</div>
+                                        <div class="text-xs font-semibold text-slate-400">{{ eq.createdAt.strftime('%Y') if eq.createdAt else '' }}</div>
+                                    </td>
+                                    <td class="px-6 py-5 align-top">
+                                        <div class="flex items-start gap-4">
+                                            <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center font-extrabold text-slate-500 shrink-0 border border-slate-200">
+                                                {{ eq.name[0]|upper if eq.name else '?' }}
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-extrabold text-slate-900">{{ eq.name }}</div>
+                                                <div class="text-xs font-semibold text-slate-500 mt-1 max-w-[200px] truncate">{{ eq.phone }}</div>
+                                                {% if eq.email %}<div class="text-xs font-semibold text-blue-500 truncate cursor-pointer">{{ eq.email }}</div>{% endif %}
+                                                {% if eq.company %}<div class="text-xs font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded mt-1.5 inline-block">{{ eq.company }}</div>{% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 align-top">
+                                        <div class="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-sm">
+                                            {{ eq.product }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 align-top w-1/3 min-w-[300px]">
+                                        <p class="text-sm font-medium text-slate-600 whitespace-normal break-words leading-relaxed">{{ eq.message }}</p>
+                                    </td>
+                                    <td class="px-6 py-5 align-top">
+                                        {% if eq.status == 'new' %}
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-extrabold bg-red-50 text-red-600 border border-red-100">
+                                                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                                Needs Action
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                Resolved
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-5 align-top text-right space-x-2">
+                                        {% if eq.status == 'new' %}
+                                        <form action="/admin/enquiry/status/{{ eq._id }}" method="POST" class="inline">
+                                            <input type="hidden" name="status" value="contacted">
+                                            <button type="submit" class="bg-blue-600 text-white hover:bg-blue-700 transition-colors px-4 py-2 rounded-lg text-xs font-bold shadow-sm shadow-blue-600/20 active:scale-95">Mark Done</button>
+                                        </form>
+                                        {% endif %}
+                                        <form action="/admin/enquiry/delete/{{ eq._id }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete this lead?');">
+                                            <button type="submit" class="bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors px-4 py-2 rounded-lg text-xs font-bold shadow-sm active:scale-95">Discard</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="py-20 text-center">
+                                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-50 mb-5 border border-slate-100 shadow-sm">
+                                            <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                        </div>
+                                        <h3 class="text-xl font-extrabold text-slate-900">Inbox Zero</h3>
+                                        <p class="text-sm text-slate-500 font-medium mt-1.5">You have no new enquiries at the moment.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 </body>
 </html>
