@@ -1,13 +1,23 @@
 """
 ============================================================
   NOVA POLYMERS - Flask Backend (UPDATED)
-  Added: individual product pages + enquiry modal support
+  Added: MongoDB Integration, Admin Panel, Enquiry tracking
 ============================================================
 """
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from pymongo import MongoClient
+from bson import ObjectId
+from datetime import datetime
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = "nova-polymers-2025"
+
+# ── MONGODB SETUP ──────────────────────────────────────────────
+client = MongoClient('mongodb://127.0.0.1:27017/')
+db = client['shraddha_products']
+enquiries_col = db['enquiries']
+products_col = db['products']
 
 # ── COMPANY DATA ──────────────────────────────────────────────
 COMPANY = {
@@ -286,13 +296,6 @@ ALL_PRODUCTS = [
     },
 ]
 
-# ── HOMEPAGE PRODUCT RANGE ─────────────────────────────────────
-HOME_PRODUCTS = [p for p in ALL_PRODUCTS if p["id"] in [
-    "pvc-soft-caps","pvc-soft-grips","pvc-dip-moulded-plastisols",
-    "busbar-end-caps","cable-end-caps","pvc-handle-grip",
-    "pvc-busbar-insulating-shroud","plastic-ball-valve-grip","plastic-flange-cover"
-]]
-
 # ── BANNER SLIDES ─────────────────────────────────────────────
 BANNERS = [
     {"label": "Dip Moulded Caps",           "cat": "dip-moulded-caps"},
@@ -309,15 +312,28 @@ TESTIMONIALS = [
     {"name": "Rajesh Kumar", "company": "Om Plastic Industries, Ahmedabad",    "msg": "Best manufacturer in Gujarat for PVC products. Their plastisol quality is top-notch and the pricing is very competitive. Will continue ordering."},
 ]
 
+# ── SEED DATABASE IF EMPTY ─────────────────────────────────────
+if products_col.count_documents({}) == 0:
+    print("Database empty. Seeding initial products...")
+    for p in ALL_PRODUCTS:
+        p["_id"] = ObjectId()
+    products_col.insert_many(ALL_PRODUCTS)
+
 # ── CONTEXT PROCESSOR ─────────────────────────────────────────
 @app.context_processor
 def inject_globals():
     return dict(company=COMPANY, categories=CATEGORIES)
 
-# ── ROUTES ────────────────────────────────────────────────────
+# ── PUBLIC ROUTES ──────────────────────────────────────────────
 @app.route("/")
 def home():
-    return render_template("index.html", banners=BANNERS, home_products=HOME_PRODUCTS, testimonials=TESTIMONIALS)
+    featured_ids = [
+        "pvc-soft-caps", "pvc-soft-grips", "pvc-dip-moulded-plastisols",
+        "busbar-end-caps", "cable-end-caps", "pvc-handle-grip",
+        "pvc-busbar-insulating-shroud", "plastic-ball-valve-grip", "plastic-flange-cover"
+    ]
+    home_products = list(products_col.find({"id": {"$in": featured_ids}}))
+    return render_template("index.html", banners=BANNERS, home_products=home_products, testimonials=TESTIMONIALS)
 
 @app.route("/about")
 def about():
@@ -331,25 +347,37 @@ def products(cat_id=None):
         current_cat = next((c for c in CATEGORIES if c["id"] == cat_id), None)
         if not current_cat:
             return redirect(url_for("products"))
-        # get all products in this category
-        cat_products = [p for p in ALL_PRODUCTS if p["cat_id"] == cat_id]
+        # get all products in this category from MongoDB
+        cat_products = list(products_col.find({"cat_id": cat_id}))
+        home_products = list(products_col.find().limit(8))
         return render_template("products.html", current_cat=current_cat,
-                               cat_products=cat_products, home_products=HOME_PRODUCTS)
+                               cat_products=cat_products, home_products=home_products)
+    
+    cat_products = list(products_col.find())
+    home_products = list(products_col.find().limit(8))
     return render_template("products.html", current_cat=None,
-                           cat_products=[], home_products=HOME_PRODUCTS)
+                           cat_products=cat_products, home_products=home_products)
 
-# ── INDIVIDUAL PRODUCT DETAIL PAGE ────────────────────────────
 @app.route("/product/<product_id>")
 def product_detail(product_id):
-    product = next((p for p in ALL_PRODUCTS if p["id"] == product_id), None)
+    # Try fetching by raw id (for seeded products) or string representation of ObjectId
+    product = products_col.find_one({"id": product_id})
+    if not product:
+        try:
+            product = products_col.find_one({"_id": ObjectId(product_id)})
+        except:
+            product = None
+
     if not product:
         return redirect(url_for("products"))
-    # related products (same category, exclude current)
-    related = [p for p in ALL_PRODUCTS if p["cat_id"] == product["cat_id"] and p["id"] != product_id][:6]
-    # if not enough, add from other categories
+    
+    # Related products
+    related = list(products_col.find({"cat_id": product.get("cat_id"), "_id": {"$ne": product["_id"]}}).limit(6))
     if len(related) < 4:
-        others = [p for p in ALL_PRODUCTS if p["id"] != product_id and p not in related]
-        related += others[:4 - len(related)]
+        exclude_ids = [product["_id"]] + [r["_id"] for r in related]
+        others = list(products_col.find({"_id": {"$nin": exclude_ids}}).limit(4 - len(related)))
+        related.extend(others)
+        
     return render_template("product_detail.html", product=product, related=related)
 
 @app.route("/services")
@@ -368,8 +396,132 @@ def testimonials():
 @app.route("/api/enquiry", methods=["POST"])
 def api_enquiry():
     data = request.get_json(silent=True) or request.form.to_dict()
-    print("New Enquiry:", data)
+    
+    name = data.get("name")
+    phone = data.get("phone")
+    message = data.get("message")
+    
+    # Validate required fields
+    if not name or not phone or not message:
+        return jsonify({"status": "error", "msg": "Missing required fields: Name, Phone, and Message are required."}), 400
+        
+    enquiry = {
+        "name": name,
+        "phone": phone,
+        "email": data.get("email", ""),
+        "company": data.get("company", ""),
+        "product": data.get("product", ""),
+        "message": message,
+        "createdAt": datetime.now(),
+        "status": "new"
+    }
+    
+    enquiries_col.insert_one(enquiry)
     return jsonify({"status": "success", "msg": "Enquiry received! We will contact you soon."})
+
+
+# ── ADMIN PANEL ────────────────────────────────────────────────
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username == "admin" and password == "admin":
+            session['admin_logged_in'] = True
+            return redirect(url_for("admin_dashboard"))
+        else:
+            return render_template("admin_login.html", error="Invalid credentials")
+    return render_template("admin_login.html")
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    return redirect(url_for("admin_login"))
+
+@app.route("/admin")
+@admin_required
+def admin_dashboard():
+    # Sort latest first
+    enquiries = list(enquiries_col.find().sort("createdAt", -1))
+    return render_template("admin_dashboard.html", enquiries=enquiries)
+
+@app.route("/admin/enquiry/delete/<obj_id>", methods=["POST"])
+@admin_required
+def admin_delete_enquiry(obj_id):
+    enquiries_col.delete_one({"_id": ObjectId(obj_id)})
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/admin/enquiry/status/<obj_id>", methods=["POST"])
+@admin_required
+def admin_enquiry_status(obj_id):
+    status = request.form.get("status", "contacted")
+    enquiries_col.update_one({"_id": ObjectId(obj_id)}, {"$set": {"status": status}})
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/admin/products")
+@admin_required
+def admin_products():
+    products = list(products_col.find())
+    return render_template("admin_products.html", products=products)
+
+@app.route("/admin/product/add", methods=["GET", "POST"])
+@admin_required
+def admin_product_add():
+    if request.method == "POST":
+        product_data = {
+            "name": request.form.get("name"),
+            "cat_id": request.form.get("cat_id"),
+            "cat_name": next((c["name"] for c in CATEGORIES if c["id"] == request.form.get("cat_id")), ""),
+            "material": request.form.get("material"),
+            "size": request.form.get("size"),
+            "color": request.form.get("color"),
+            "price": request.form.get("price"),
+            "img": request.form.get("img"),
+            "desc": request.form.get("desc"),
+            "id": request.form.get("name").lower().replace(" ", "-") # Generate string ID
+        }
+        products_col.insert_one(product_data)
+        return redirect(url_for("admin_products"))
+    return render_template("admin_product_form.html", categories=CATEGORIES, action="Add")
+
+@app.route("/admin/product/edit/<obj_id>", methods=["GET", "POST"])
+@admin_required
+def admin_product_edit(obj_id):
+    product = products_col.find_one({"_id": ObjectId(obj_id)})
+    if not product:
+        return redirect(url_for("admin_products"))
+        
+    if request.method == "POST":
+        product_data = {
+            "name": request.form.get("name"),
+            "cat_id": request.form.get("cat_id"),
+            "cat_name": next((c["name"] for c in CATEGORIES if c["id"] == request.form.get("cat_id")), product.get('cat_name', '')),
+            "material": request.form.get("material"),
+            "size": request.form.get("size"),
+            "color": request.form.get("color"),
+            "price": request.form.get("price"),
+            "img": request.form.get("img"),
+            "desc": request.form.get("desc"),
+            "id": request.form.get("id") or product.get("id", str(obj_id))
+        }
+        products_col.update_one({"_id": ObjectId(obj_id)}, {"$set": product_data})
+        return redirect(url_for("admin_products"))
+    return render_template("admin_product_form.html", product=product, categories=CATEGORIES, action="Edit")
+
+@app.route("/admin/product/delete/<obj_id>", methods=["POST"])
+@admin_required
+def admin_product_delete(obj_id):
+    products_col.delete_one({"_id": ObjectId(obj_id)})
+    return redirect(url_for("admin_products"))
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

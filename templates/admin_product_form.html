@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - {{ action }} Product</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4 text-white flex justify-between">
+        <div class="font-bold text-xl">Admin Panel</div>
+        <div>
+            <a href="/admin" class="mr-4 hover:underline">Enquiries</a>
+            <a href="/admin/products" class="mr-4 font-semibold underline">Products</a>
+            <a href="/admin/logout" class="hover:underline">Logout</a>
+        </div>
+    </nav>
+    <div class="container mx-auto mt-8 p-4 bg-white rounded shadow max-w-3xl">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">{{ action }} Product</h2>
+        <form method="POST">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Product Name *</label>
+                    <input type="text" name="name" value="{{ product.name if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Category *</label>
+                    <select name="cat_id" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500" required>
+                        <option value="">Select Category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product and product.cat_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Image URL *</label>
+                    <input type="url" name="img" value="{{ product.img if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Price *</label>
+                    <input type="text" name="price" value="{{ product.price if product else '' }}" placeholder="₹ 10.00 - 30.00 / Piece(s)" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Material</label>
+                    <input type="text" name="material" value="{{ product.material if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Color</label>
+                    <input type="text" name="color" value="{{ product.color if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Size / Shape</label>
+                    <input type="text" name="size" value="{{ product.size if product else product.shape if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500">
+                </div>
+                {% if action == 'Edit' %}
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Product ID slug</label>
+                    <input type="text" name="id" value="{{ product.id if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-100 text-gray-500" readonly>
+                </div>
+                {% endif %}
+            </div>
+            <div class="mb-4 mt-2">
+                <label class="block text-gray-700 text-sm font-semibold mb-2">Description *</label>
+                <textarea name="desc" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500" required>{{ product.desc if product else '' }}</textarea>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <a href="/admin/products" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded transition-colors text-sm font-medium">Cancel</a>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded transition-colors text-sm font-medium">Save Product</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
